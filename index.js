@@ -69,7 +69,7 @@ function askQuestion() {
 
 function viewEmp() {
   connection.query(
-    "SELECT employee.id, first_name, last_name, role.title, role.department_id, role.salary, manager_id FROM employee JOIN role ON employee.role_id = role.id",
+    "SELECT employee.id, first_name, last_name, role.title, department.department_name, role.salary, manager_id FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id",
     function (err, res) {
       if (err) throw err;
       console.table(res);
