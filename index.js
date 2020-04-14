@@ -31,7 +31,8 @@ function askQuestion() {
           "create new role",
           "create new department",
           new inquirer.Separator(),
-          "update an employee",
+          "update an employee role",
+          "update an employee manager",
           new inquirer.Separator(),
         ],
         name: "userChoice",
@@ -57,9 +58,11 @@ function askQuestion() {
         case "create new department":
           createDep();
           break;
-        case "update an employee":
-          updateEmp();
+        case "update an employee role":
+          updateRole();
           break;
+        case "update an employee manager":
+          updateManager
       }
     });
 }
@@ -110,15 +113,123 @@ function createEmp() {
             name: "newLast" 
         },
         {
-            type: "input",
-            message: "What is the employee's first name?",
-            name: "newFirst"
+            type: "list",
+            message: "What is their role?",
+            choices:[],
+            name: "newRole"
+        },
+        {
+          type: "list",
+          message: "Who is there manager?",
+          choices: ["no one"],
+          name: "newManager"
         }
-    ])
+    ]).then(function(answer){
+      if (answer.newManager === "no one"){
+        connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)", [answer.newFirst, answer.newLast, answer.newRole], function(err, data){
+          if (err) throw err;
+
+          console.log("New employee created!")
+          askQuestion();
+        })
+      } else {
+        connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answer.newFirst, answer.newLast, answer.newRole, answer.newManager], function(err, data){
+          if (err) throw err;
+
+          console.log("New employee created!")
+          askQuestion();
+      }
+    })
 }
 
-// function createRole() {}
+function createRole() {
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "What is the new role?",
+      name: "newRole"
+    },
+    {
+      type: "input",
+      message: "What is the salary for this role?",
+      name: "newSalary"
+    },
+    {
+      type: "list",
+      message: "What department is it apart of?",
+      name: "newDept"
+    }
+  ]).then(function(answer){
+    connection.query("INSERT INTO role (title, salary, department_id) VALUES (?,?,?)", [answer.newRole, answer.newSalary, answer.newDept], function(err, data){
+      if(err) throw err;
 
-// function createDep() {}
+      console.log("New role created!")
+      askQuestion();
+    })
+  })
+}
 
-// function updateEmp() {}
+function createDep() {
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "What is the new department??",
+      name: "newDept"
+    }
+  ]).then(function(answer){
+    connection.query("INSERT INTO department (department_name) VALUES (?)", [answer.newDept], function(err, data){
+      if(err) throw err;
+
+      console.log("New department created!")
+      askQuestion();
+    })
+  })
+}
+
+function updateRole(){
+  inquirer.prompt([
+    {
+      type: "list",
+      message: "Who do you want to update?",
+      choices: [],
+      name: "empChoice"
+    },
+    {
+      type: "list",
+      message: "Which role do you want to change to?",
+      choices: [],
+      name:"newRole"
+    }
+  ]).then(function(answer){
+    connection.query("UPDATE employee SET role_id = ? WHERE ? = ", [answer.newRole, answer.empChoice, ], function(err, data){
+      if(err) throw err;
+
+      console.log("Employee role updated!")
+    })
+
+  })
+}
+
+function updateManager(){
+  inquirer.prompt([
+    {
+      type: "list",
+      message: "Who do you want to update?",
+      choices: [],
+      name: "empChoice"
+    },
+    {
+      type: "list",
+      message: "Who is the new manager?",
+      choices: [],
+      name:"newManager"
+    }
+  ]).then(function(answer){
+    connection.query("UPDATE employee SET manager_id = ? WHERE ? = ", [answer.newManager, answer.empChoice, ], function(err, data){
+      if(err) throw err;
+
+      console.log("Employee manager updated!")
+    })
+
+  })
+}

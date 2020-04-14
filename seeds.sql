@@ -19,7 +19,7 @@ VALUES ("Engineer", 100000.00, 1),
 ("Accountant", 55000.00, 4);
 
 -- premade deparetments
-INSERT INTO department (name)
+INSERT INTO department (department_name)
 VALUES ("Engineering"),
 ("Sales"),
 ("Legal"),
