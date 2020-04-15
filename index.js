@@ -227,18 +227,32 @@ function updateRole(){
   })
   inquirer.prompt([
     {
+      type: "confirm",
+      message: "Do you want to change someones role?",
+      name: "confirmChange"
+    },
+    {
       type: "list",
       message: "Who do you want to update?",
       choices: empArr,
-      name: "empChoice"
+      name: "empChoice",
+      when: function(answer){
+        return answer.confirmChange = true
+      }
     },
     {
       type: "list",
       message: "Which role do you want to change to?",
       choices: rolesArr,
-      name:"newRole"
+      name:"newRole",
+      when: function(answer){
+        return answer.confirmChange = true
+      }
     }
   ]).then(function(answer){
+    if (!answer.confirmChange){
+      askQuestion();
+    }
     connection.query("UPDATE employee SET role_id = ? WHERE ? = ", [answer.newRole, answer.empChoice, employee], function(err, data){
       if(err) throw err;
 
@@ -266,18 +280,32 @@ function updateManager(){
   })
   inquirer.prompt([
     {
+      type: "confirm",
+      message: "Do you want to change someones role?",
+      name: "confirmChange"
+    },
+    {
       type: "list",
       message: "Who do you want to update?",
       choices: empArr,
-      name: "empChoice"
+      name: "empChoice",
+      when: function(answer){
+        return answer.confirmChange = true
+      }
     },
     {
       type: "list",
       message: "Who is the new manager?",
       choices: managerArr,
-      name:"newManager"
+      name:"newManager",
+      when: function(answer){
+        return answer.confirmChange = true
+      }
     }
   ]).then(function(answer){
+    if (!answer.confirmChange){
+      askQuestion();
+    }
     connection.query("UPDATE employee SET manager_id = ? WHERE ? = ", [answer.newManager, answer.empChoice, employee], function(err, data){
       if(err) throw err;
 
