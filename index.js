@@ -62,7 +62,7 @@ function askQuestion() {
           updateRole();
           break;
         case "update an employee manager":
-          updateManager
+          updateManager();
       }
     });
 }
@@ -101,6 +101,21 @@ function viewDep() {
 }
 
 function createEmp() {
+  let rolesArr = []
+  let managerArr = []
+  connection.query("SELECT * FROM role", function(err, data){
+    if(err) throw err;
+    data.forEach(role => {
+      rolesArr.push(role.title)
+    })
+  })
+  connection.query("SELECT * FROM employee", function(err, data){
+    if(err) throw err;
+    data.forEach(manager => {
+      managerArr.push(manager.first_name)
+    })
+    managerArr.push("No one")
+  })
     inquirer.prompt([
         {
             type: "input",
@@ -115,17 +130,17 @@ function createEmp() {
         {
             type: "list",
             message: "What is their role?",
-            choices:[],
+            choices: rolesArr,
             name: "newRole"
         },
         {
           type: "list",
           message: "Who is there manager?",
-          choices: ["no one"],
+          choices: managerArr,
           name: "newManager"
         }
     ]).then(function(answer){
-      if (answer.newManager === "no one"){
+      if (answer.newManager === "No one"){
         connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)", [answer.newFirst, answer.newLast, answer.newRole], function(err, data){
           if (err) throw err;
 
@@ -138,11 +153,20 @@ function createEmp() {
 
           console.log("New employee created!")
           askQuestion();
-      }
-    })
+      })
+    }
+})
 }
 
 function createRole() {
+  let deptArr = []
+  connection.query("SELECT * FROM department", function(err, data){
+    if(err) throw err;
+    data.forEach(dept => {
+      deptArr.push(dept.department_name)
+    })
+    managerArr.push("No one")
+  })
   inquirer.prompt([
     {
       type: "input",
@@ -157,6 +181,7 @@ function createRole() {
     {
       type: "list",
       message: "What department is it apart of?",
+      choices: deptArr,
       name: "newDept"
     }
   ]).then(function(answer){
@@ -187,21 +212,35 @@ function createDep() {
 }
 
 function updateRole(){
+  let empArr = []
+  let rolesArr = []
+  connection.query("SELECT first_name FROM employee", function(err, data){
+    if(err) throw err;
+    data.forEach(employee => {
+      empArr.push(employee.first_name)
+    })
+  })
+  connection.query("SELECT * FROM role", function(err, data){
+    if(err) throw err;
+    data.forEach(role => {
+      rolesArr.push(role.title)
+    })
+  })
   inquirer.prompt([
     {
       type: "list",
       message: "Who do you want to update?",
-      choices: [],
+      choices: empArr,
       name: "empChoice"
     },
     {
       type: "list",
       message: "Which role do you want to change to?",
-      choices: [],
+      choices: rolesArr,
       name:"newRole"
     }
   ]).then(function(answer){
-    connection.query("UPDATE employee SET role_id = ? WHERE ? = ", [answer.newRole, answer.empChoice, ], function(err, data){
+    connection.query("UPDATE employee SET role_id = ? WHERE ? = ", [answer.newRole, answer.empChoice, employee], function(err, data){
       if(err) throw err;
 
       console.log("Employee role updated!")
@@ -211,21 +250,36 @@ function updateRole(){
 }
 
 function updateManager(){
+  let empArr = []
+  let managerArr = []
+  connection.query("SELECT first_name FROM employee", function(err, data){
+    if(err) throw err;
+    data.forEach(employee => {
+      empArr.push(employee.first_name)
+    })
+  })
+  connection.query("SELECT * FROM employee", function(err, data){
+    if(err) throw err;
+    data.forEach(manager => {
+      managerArr.push(manager.first_name)
+    })
+    managerArr.push("No one")
+  })
   inquirer.prompt([
     {
       type: "list",
       message: "Who do you want to update?",
-      choices: [],
+      choices: empArr,
       name: "empChoice"
     },
     {
       type: "list",
       message: "Who is the new manager?",
-      choices: [],
+      choices: managerArr,
       name:"newManager"
     }
   ]).then(function(answer){
-    connection.query("UPDATE employee SET manager_id = ? WHERE ? = ", [answer.newManager, answer.empChoice, ], function(err, data){
+    connection.query("UPDATE employee SET manager_id = ? WHERE ? = ", [answer.newManager, answer.empChoice, employee], function(err, data){
       if(err) throw err;
 
       console.log("Employee manager updated!")
