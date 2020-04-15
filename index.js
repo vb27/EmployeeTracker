@@ -165,7 +165,6 @@ function createRole() {
     data.forEach(dept => {
       deptArr.push(dept.department_name)
     })
-    managerArr.push("No one")
   })
   inquirer.prompt([
     {
@@ -213,13 +212,13 @@ function createDep() {
 
 function updateRole(){
   let empArr = []
-  let rolesArr = []
-  connection.query("SELECT first_name FROM employee", function(err, data){
+  connection.query("SELECT * FROM employee", function(err, data){
     if(err) throw err;
     data.forEach(employee => {
       empArr.push(employee.first_name)
     })
   })
+  let rolesArr = []
   connection.query("SELECT * FROM role", function(err, data){
     if(err) throw err;
     data.forEach(role => {
@@ -251,13 +250,13 @@ function updateRole(){
 
 function updateManager(){
   let empArr = []
-  let managerArr = []
-  connection.query("SELECT first_name FROM employee", function(err, data){
+  connection.query("SELECT * FROM employee", function(err, data){
     if(err) throw err;
     data.forEach(employee => {
       empArr.push(employee.first_name)
     })
   })
+  let managerArr = []
   connection.query("SELECT * FROM employee", function(err, data){
     if(err) throw err;
     data.forEach(manager => {
